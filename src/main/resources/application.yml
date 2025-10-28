@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    include: secret
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/snowon_db?useSSL=false&serverTimezone=Asia/Seoul
+    username: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
+
+  # --- Elasticsearch (???? ??) ---
+#  elasticsearch:
+#    uris:
+#      - http://localhost:9200
+    # username: your_es_username # (????? secret??)
