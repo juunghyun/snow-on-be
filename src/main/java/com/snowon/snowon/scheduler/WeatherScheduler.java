@@ -1,6 +1,7 @@
 package com.snowon.snowon.scheduler;
 
 import com.snowon.snowon.service.WeatherService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,6 +13,12 @@ import org.springframework.stereotype.Component;
 public class WeatherScheduler {
 
     private final WeatherService weatherService;
+
+    @PostConstruct
+    public void initWeatherCache(){
+        log.info("애플리케이션 시작 - 초기 날씨 정보 1회 적재");
+        weatherService.updateAllCityWeather();
+    }
 
     /**
      * 매시 50분에 날씨 정보를 갱신합니다.
