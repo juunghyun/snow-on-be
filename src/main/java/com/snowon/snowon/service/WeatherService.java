@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snowon.snowon.client.WeatherApiClient;
 import com.snowon.snowon.domain.City;
+import com.snowon.snowon.domain.WeatherStatus;
+import com.snowon.snowon.dto.MapDataResponse;
 import com.snowon.snowon.repository.CityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 @Slf4j // 로그를 찍기 위해 사용 (Lombok)
 @Service
@@ -54,6 +57,34 @@ public class WeatherService {
             }
         }
         log.info("날씨 정보 갱신을 완료했습니다.");
+    }
+
+    /**
+     * 지도에 표시할 날씨 데이터를 Redis/DB에서 조회합니다.
+     * @return 23개 도시의 날씨 정보 리스트
+     */
+    public List<MapDataResponse> getMapWeatherData() {
+        // 1. DB에서 23개 도시의 "기본 정보(ID, 이름)"를 모두 가져옵니다.
+        List<City> cities = cityRepository.findAll();
+
+        // 2. Redis에서 23개 도시의 "날씨 코드(PTY)"를 *한 번에* 가져옵니다. (N+1 최적화)
+        List<String> redisKeys = cities.stream()
+                .map(city -> "weather::" + city.getId())
+                .toList();
+
+        // multiGet: 23개 키를 한 번의 명령으로 조회
+        List<String> ptyCodes = redisTemplate.opsForValue().multiGet(redisKeys);
+
+        // 3. DB 정보와 Redis 정보를 조합(zip)합니다.
+        return IntStream.range(0, cities.size())
+                .mapToObj(i -> {
+                    City city = cities.get(i);
+                    // (Redis에 값이 없는) null일 경우 "0"(맑음)으로 처리
+                    String ptyCode = (ptyCodes != null && ptyCodes.get(i) != null) ? ptyCodes.get(i) : "0";
+                    WeatherStatus status = WeatherStatus.fromCode(ptyCode);
+                    return new MapDataResponse(city, status, ptyCode);
+                })
+                .toList();
     }
 
     /**
