@@ -20,8 +20,6 @@ spring:
       host: localhost
       port: 6379
 
-  # --- Elasticsearch (???? ??) ---
-#  elasticsearch:
-#    uris:
-#      - http://localhost:9200
-    # username: your_es_username # (????? secret??)
+  elasticsearch:
+    uris:
+      - http://localhost:9200
