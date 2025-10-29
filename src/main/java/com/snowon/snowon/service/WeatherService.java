@@ -54,6 +54,9 @@ public class WeatherService {
             } catch (Exception e) {
                 // 한 도시가 실패해도, 전체 스케줄러가 멈추면 안 되므로 try-catch로 감쌉니다.
                 log.error("[{}] 날씨 갱신 중 에러 발생: {}", city.getName(), e.getMessage());
+                String redisKey = "weather::" + city.getId();
+                redisTemplate.opsForValue().set(redisKey, "0", 65, TimeUnit.MINUTES); // 기본값 저장!
+                log.warn("[{}] 날씨 정보를 기본값(맑음)으로 저장합니다.", city.getName());
             }
         }
         log.info("날씨 정보 갱신을 완료했습니다.");
