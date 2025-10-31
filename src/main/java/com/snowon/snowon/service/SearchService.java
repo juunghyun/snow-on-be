@@ -68,7 +68,7 @@ public class SearchService {
         // 4. 도시 정보 + 날씨 정보 결합하여 최종 결과 생성
         SearchWeatherResult result = new SearchWeatherResult(cityInfo, status, ptyCode);
 
-        // 5. [기능 2 준비] 검색 성공 시 인기 검색어 점수 증가 (아래에서 구현)
+        // 5. 검색 성공 시 인기 검색어 점수 증가
         incrementSearchScore(cityInfo.getCityName());
 
         log.info("도시 검색(날씨포함) 결과 반환: {}", result.getCityName());

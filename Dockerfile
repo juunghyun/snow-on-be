@@ -1,20 +1,19 @@
 # Multi-Stage Build 시작: Builder 단계
 
-# 1단계: 빌드 환경 (Java 17 JDK)
+# 1단계: 빌드 환경 (Java 17 JDK) 설정
 FROM eclipse-temurin:17-jdk-focal as builder
 WORKDIR /app
 
-# ⬇️⬇️ [수정!] Maven 빌드 파일들을 복사합니다. ⬇️⬇️
-# pom.xml, mvnw, .mvn 폴더를 복사합니다.
+# pom.xml, mvnw, .mvn 폴더를 복사
 COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
 
-# 소스 코드를 복사합니다.
+# 소스 코드를 복사
 COPY src src
 
-# JAR 파일을 빌드합니다. (Maven 명령어 사용)
-# RUN ./mvnw clean package -DskipTests 는 target/*.jar로 빌드합니다.
+# JAR 파일을 빌드(Maven)
+# RUN ./mvnw clean package -DskipTests 는 target/*.jar로 빌드
 RUN ./mvnw clean package -DskipTests
 
 # -----------------------------------------------------------------

@@ -13,8 +13,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private final CitySyncService citySyncService;
 
-    // CommandLineRunner는 Spring Boot 앱이 시작될 때
-    // 'run' 메서드를 "딱 1번" 자동으로 실행합니다.
+    // CommandLineRunner는 Spring Boot 앱이 시작될 때 'run' 메서드를 "딱 1번" 자동으로 실행합니다.
     @Override
     public void run(String... args) throws Exception {
         log.info("데이터 초기화 작업을 시작합니다...");
