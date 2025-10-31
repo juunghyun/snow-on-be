@@ -1,19 +1,27 @@
-package com.snowon.snowon.config; // 패키지 경로는 맞게 수정하세요
+package com.snowon.snowon.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration // 이 클래스가 설정 파일임을 선언
+@Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    // application-prod.yml의 cors.allowed-origin 값을 주입
+    @Value("${cors.allowed-origin}")
+    private String allowedOrigin;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**") // '/api/'로 시작하는 모든 경로에 적용
-                .allowedOrigins("http://localhost:3000") // 허용할 출처 (프론트엔드 주소)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
-                .allowedHeaders("*") // 허용할 헤더
-                .allowCredentials(false); // 쿠키/인증 정보 허용 여부 (필요 없으므로 false)
-        // .maxAge(3600); // Pre-flight 요청 캐시 시간 (초)
+        // 환경 변수로 받은 주소(들)을 콤마(,)로 분리 -> 배열로 만들기.
+        // Docker Compose에서 하나의 문자열로 주입받기 때문에 필요.
+        String[] origins = allowedOrigin.split(",");
+
+        registry.addMapping("/api/**")
+                .allowedOrigins(origins)
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(false);
     }
 }

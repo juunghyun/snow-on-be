@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController // 이 클래스는 REST API 컨트롤러임을 선언
-@RequestMapping("/api/v1/weather") // /api/v1/weather 로 시작하는 모든 요청을 받음
+@RestController
+@RequestMapping("/api/v1/weather")
 @RequiredArgsConstructor
 public class WeatherController {
 

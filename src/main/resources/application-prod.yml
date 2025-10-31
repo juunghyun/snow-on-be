@@ -1,0 +1,30 @@
+server:
+  # Nginx(리버스 프록시)에서 전달하는 X-Forwarded-* 헤더를 Spring Boot가 인식하도록 설정
+  forward-headers-strategy: native
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # RDS Endpoint, 포트, DB 이름은 환경 변수로 받음
+    url: jdbc:mysql://${RDS_ENDPOINT}:3306/snowon_db?useSSL=false&serverTimezone=Asia/Seoul
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  # 2. Redis 설정
+  data:
+    redis:
+      # Redis Endpoint는 환경 변수로 받음
+      host: ${REDIS_ENDPOINT}
+      port: 6379
+
+  # 3. Elasticsearch 설정 (EC2 내부 Docker 컨테이너 주소)
+  elasticsearch:
+    uris: http://elasticsearch:9200
+
+  # 4. CORS 허용 출처 설정 (Docker Compose 환경 변수에서 주입받음)
+cors:
+  allowed-origin: ${FRONTEND_ORIGIN}

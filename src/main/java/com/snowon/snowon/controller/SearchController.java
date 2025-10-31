@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/search") // /api/v1/search 로 시작하는 요청 처리
+@RequestMapping("/api/v1/search")
 @RequiredArgsConstructor
 public class SearchController {
 
