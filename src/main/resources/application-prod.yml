@@ -1,3 +1,7 @@
+server:
+  # Nginx(리버스 프록시)에서 전달하는 X-Forwarded-* 헤더를 Spring Boot가 인식하도록 설정
+  forward-headers-strategy: native
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
