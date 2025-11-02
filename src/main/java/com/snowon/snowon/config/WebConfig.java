@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     // application-prod.yml의 cors.allowed-origin 값을 주입
-    @Value("${cors.allowed-origin}")
+    @Value("${cors.allowed-origin:http://localhost:3000}")
     private String allowedOrigin;
 
     @Override
