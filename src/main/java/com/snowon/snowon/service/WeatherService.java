@@ -31,32 +31,37 @@ public class WeatherService {
      */
     public void updateAllCityWeather() {
         log.info("날씨 정보 갱신을 시작합니다...");
-
-        // 1. DB에서 23개 도시 목록을 가져옴 - 쿼리 1회
         List<City> cities = cityRepository.findAll();
 
-        // 2. 23개 도시를 순회 (N번 루프)
         for (City city : cities) {
             try {
-                // 3. API 클라이언트를 호출 (N번의 동기/블로킹 API 호출 발생)
+                // [변경 없음] 이 메서드는 이제 3번 자동 재시도됩니다.
                 String jsonResponse = weatherApiClient.getUltraShortTermWeather(city.getNx(), city.getNy());
 
-                // 4. JSON 파싱해서 "PTY"(강수형태) 값 추출
                 String ptyValue = parsePtyValue(jsonResponse);
 
-                // 5. Redis에 저장 (Key: "weather::1", Value: "3")
-                //    '1시간 + 5분' 동안 유효하게 저장 (스케줄러 주기보다 약간 길게)
                 String redisKey = "weather::" + city.getId();
                 redisTemplate.opsForValue().set(redisKey, ptyValue, 65, TimeUnit.MINUTES);
 
                 log.info("[{}] 날씨 갱신 완료 (PTY: {})", city.getName(), ptyValue);
 
             } catch (Exception e) {
-                // 한 도시가 실패해도, 전체 스케줄러가 멈추면 안 되므로 try-catch로 감쌉니다.
-                log.error("[{}] 날씨 갱신 중 에러 발생: {}", city.getName(), e.getMessage());
+                // [변경 없음] 3번 재시도 후에도 실패하면 이곳으로 와서 로그를 남기고 0으로 저장합니다.
+                log.error("[{}] 날씨 갱신 3회 재시도 모두 실패: {}", city.getName(), e.getMessage());
                 String redisKey = "weather::" + city.getId();
-                redisTemplate.opsForValue().set(redisKey, "0", 65, TimeUnit.MINUTES); // 기본값 저장!
+                redisTemplate.opsForValue().set(redisKey, "0", 65, TimeUnit.MINUTES);
                 log.warn("[{}] 날씨 정보를 기본값(맑음)으로 저장합니다.", city.getName());
+
+            } finally {
+                // ----------------------------------------------------
+                // [수정] 성공하든 실패하든, Rate Limit을 위해 0.1초 대기
+                // ----------------------------------------------------
+                try {
+                    Thread.sleep(100); // 0.1초 대기
+                } catch (InterruptedException ie) {
+                    log.warn("날씨 갱신 중 스레드 대기 인터럽트 발생");
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         log.info("날씨 정보 갱신을 완료했습니다.");

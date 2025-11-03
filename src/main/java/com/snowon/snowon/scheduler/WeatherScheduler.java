@@ -28,7 +28,7 @@ public class WeatherScheduler {
      * "0 50 * * * *" = 매시 50분 0초에 실행
      */
     //@Scheduled(initialDelay = 1000, fixedDelay = 30000) //테스트용
-    @Scheduled(cron = "0 50 * * * *")
+    @Scheduled(cron = "0 10 * * * *")
     public void scheduleWeatherUpdate() {
         log.info("정기 날씨 정보 갱신 스케줄러 실행...");
         weatherService.updateAllCityWeather();
