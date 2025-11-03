@@ -9,8 +9,8 @@ public class SearchWeatherResult {
     private final String cityName;
     private final int nx;
     private final int ny;
-    private final WeatherStatus weatherStatus; // 날씨 상태 추가!
-    private final String ptyCode; // 원본 코드 (디버깅/프론트엔드용)
+    private final WeatherStatus weatherStatus;
+    private final String ptyCode;
 
     public SearchWeatherResult(CitySearchResult cityInfo, WeatherStatus status, String ptyCode) {
         this.cityId = cityInfo.getCityId();
