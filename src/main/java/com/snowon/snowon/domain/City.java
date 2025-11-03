@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA는 기본 생성자가 필요
 @Table(name = "city")
 public class City {
@@ -24,4 +26,9 @@ public class City {
 
     @Column(nullable = false)
     private int ny;
+
+    @Column(nullable = false)
+    private String ptyCode; // "0": 맑음, "1": 비 등
+
+
 }
