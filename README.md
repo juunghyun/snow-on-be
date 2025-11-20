@@ -62,7 +62,43 @@ graph TD
     F --> D
     G --> D
 ```
+## 🔄 CI/CD 파이프라인 (Deployment)
 
+GitHub Actions와 Docker Hub를 활용하여 코드 푸시부터 배포까지의 과정을 자동화했습니다.  
+보안을 위해 소스 코드와 환경 변수(.env) 관리를 분리하여 운영합니다.
+
+```mermaid
+graph LR
+    subgraph "Developer"
+        Push[Git Push]
+    end
+
+    subgraph "GitHub Actions (CI)"
+        Build["Build (Maven/Node)"]
+        DockerBuild[Docker Image Build]
+        PushHub[Push to Docker Hub]
+    end
+
+    subgraph "Docker Hub"
+        Image["Docker Image (BE/FE)"]
+    end
+
+    subgraph "AWS EC2 (CD)"
+        SSH[SSH Remote Command]
+        Pull[Docker Pull]
+        Run[Docker Compose Up]
+    end
+
+    Push --> Build
+    Build --> DockerBuild
+    DockerBuild --> PushHub
+    PushHub --> Image
+    
+    DockerBuild -.-> SSH
+    SSH --> Pull
+    Image --> Pull
+    Pull --> Run
+```
 ---
 
 ## ✨ 주요 기능
@@ -93,10 +129,12 @@ graph TD
 ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 ![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white)
 
-### Infra
+### DevOps & Infra
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
+![Docker Hub](https://img.shields.io/badge/Docker_Hub-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 ---
 
@@ -117,5 +155,13 @@ graph TD
 ### 3️⃣ 배포 환경 통합 및 트래픽 관리
 - **문제:** 다중 서비스 관리 필요(Redis, Elasticsearch, FE, BE)
 - **해결:** Docker Compose 기반 컨테이너 통합 관리 + Nginx 리버스 프록시 설정  
+
+---
+
+### 4️⃣ 수동 배포의 비효율성 개선 (CI/CD)
+- **문제:** 로컬 빌드 후 압축 파일을 전송하고 재실행하는 수동 배포 방식은 시간이 오래 걸리고(약 20분), 휴먼 에러 발생 위험이 컸음
+- **해결:** - GitHub Actions + Docker Hub를 연동하여 코드 푸시 시 자동 빌드 및 배포 파이프라인 구축
+- Docker Compose를 활용해 BE, FE, DB 컨테이너를 일괄 관리하며, 환경 변수(.env)를 런타임에 주입하여 보안성을 강화함
+- 배포 소요 시간을 3분 내외로 단축하고 운영 안정성 확보.
 
 ---
