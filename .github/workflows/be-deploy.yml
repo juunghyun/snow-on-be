@@ -1,12 +1,11 @@
 name: Deploy Backend (Spring Boot)
 
 on:
-  workflow_dispatch:
-
+  workflow_dispatch: # 수동 실행 버튼
   push:
     branches: [ "release/**" ]
-#    paths:
-#      - 'snow-on-be/**'
+    # paths:  <-- 테스트를 위해 주석 처리 유지
+    #   - 'snow-on-be/**'
 
 jobs:
   build-and-deploy:
@@ -17,41 +16,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Java 17 세팅 (Spring Boot 3.x 기준)
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+      # (Java 세팅, Maven 빌드 단계 -> Dockerfile이 다 함)
 
-      # 3. Gradle 권한 부여
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./snow-on-be/gradlew
-
-      # 4. Spring Boot 빌드 (테스트 제외)
-      # 테스트 코드가 있다면 -x test를 제거하세요. 지금은 배포 성공이 우선이라 제외했습니다.
-      - name: Build with Gradle
-        run: |
-          cd snow-on-be
-          ./gradlew clean build -x test
-
-      # 5. Docker Hub 로그인 (Secrets 사용)
+      # 2. Docker Hub 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 6. Docker Image 빌드 및 푸시
+      # 3. Docker Image 빌드 및 푸시 (여기서 Dockerfile이 실행되면서 Maven 빌드도 같이 됨)
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./snow-on-be # Dockerfile이 있는 위치
+          context: ./snow-on-be # Dockerfile이 있는 폴더
           file: ./snow-on-be/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/snow-be:latest
 
-      # 7. EC2에 접속해서 배포 명령어 실행
+      # 4. EC2 배포
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -59,7 +42,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cd snow-project # EC2에서 우리가 만든 폴더 이름
-            sudo docker-compose pull app-be # 변경된 이미지만 다운로드
-            sudo docker-compose up -d app-be # 백엔드 컨테이너만 재시작
-            sudo docker image prune -f # 사용 안 하는 구버전 이미지 삭제
+            cd snow-project
+            sudo docker-compose pull app-be
+            sudo docker-compose up -d app-be
+            sudo docker image prune -f
