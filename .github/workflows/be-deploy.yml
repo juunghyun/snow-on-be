@@ -1,11 +1,11 @@
 name: Deploy Backend (Spring Boot)
 
 on:
-  workflow_dispatch: # 수동 실행 버튼
+  workflow_dispatch:
   push:
     branches: [ "release/**" ]
-    # paths:  <-- 테스트를 위해 주석 처리 유지
-    #   - 'snow-on-be/**'
+    # paths:
+    #   - 'src/**' # (경로가 루트니까 이제 src 폴더 감시)
 
 jobs:
   build-and-deploy:
@@ -16,7 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # (Java 세팅, Maven 빌드 단계 -> Dockerfile이 다 함)
 
       # 2. Docker Hub 로그인
       - name: Login to Docker Hub
@@ -25,12 +24,12 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 3. Docker Image 빌드 및 푸시 (여기서 Dockerfile이 실행되면서 Maven 빌드도 같이 됨)
+      # 3. Docker Image 빌드 및 푸시
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./snow-on-be # Dockerfile이 있는 폴더
-          file: ./snow-on-be/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/snow-be:latest
 
