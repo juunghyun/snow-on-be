@@ -9,6 +9,9 @@ COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
 
+# 권한 부여
+RUN chmod +x ./mvnw
+
 # 소스 코드를 복사
 COPY src src
 
