@@ -1,10 +1,12 @@
 name: Deploy Backend (Spring Boot)
 
 on:
+  workflow_dispatch:
+
   push:
     branches: [ "release/**" ]
-    paths:
-      - 'snow-on-be/**'
+#    paths:
+#      - 'snow-on-be/**'
 
 jobs:
   build-and-deploy:
